@@ -8,6 +8,7 @@ Set ``AUTOCAD_MCP_ROOT`` to choose where .dxf files are stored
 from __future__ import annotations
 
 import functools
+import logging
 import os
 from collections.abc import Callable
 from pathlib import Path
@@ -19,6 +20,9 @@ from mcp.server.mcpserver.exceptions import ToolError
 from autocad_mcp.drawings import DrawingError, DrawingStore
 
 DEFAULT_ROOT = "~/Documents/autocad-mcp"
+
+# ezdxf logs table/dictionary creation at INFO; keep stderr (the MCP log channel) quiet.
+logging.getLogger("ezdxf").setLevel(logging.WARNING)
 
 store = DrawingStore(Path(os.environ.get("AUTOCAD_MCP_ROOT", DEFAULT_ROOT)))
 
