@@ -25,7 +25,43 @@ Why not drive AutoCAD directly? AutoCAD for Mac has no COM/.NET automation, so t
 
 Layers are created on first use. Coordinates are 2D `[x, y]` in the drawing's units.
 
-## Setup
+## Install on a Mac (Claude Desktop)
+
+One line, no AutoCAD or Python knowledge needed:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/DenysKulemza/autocad-mcp/main/install.sh | bash
+```
+
+Then restart Claude Desktop. The server appears as **autocad** under Settings → Developer, and
+Claude can draw on request, for example:
+
+> Make a new drawing "garage" in metres, draw a 6 by 4 rectangle on layer WALLS, add a door
+> 0.9 wide on the bottom wall, label it, show me a preview, then save it.
+
+Saved files land in `~/Documents/autocad-mcp/<name>.dxf`. Open them with AutoCAD (File → Open,
+file type DXF) or drag them onto the AutoCAD icon.
+
+What the installer does: installs [uv](https://docs.astral.sh/uv/) if missing, adds an
+`autocad` entry to `~/Library/Application Support/Claude/claude_desktop_config.json`, registers
+the server in Claude Code too if the `claude` CLI exists, and pre-fetches the code. Updates:
+`uv cache clean autocad-mcp` then restart Claude Desktop.
+
+The entry it writes, if you prefer to add it by hand:
+
+```json
+{
+  "mcpServers": {
+    "autocad": {
+      "command": "/Users/you/.local/bin/uv",
+      "args": ["tool", "run", "--from", "git+https://github.com/DenysKulemza/autocad-mcp", "autocad-mcp"],
+      "env": { "AUTOCAD_MCP_ROOT": "/Users/you/Documents/autocad-mcp" }
+    }
+  }
+}
+```
+
+## Development setup
 
 ```bash
 brew install uv
@@ -44,19 +80,6 @@ Optional: set where drawings are stored (default `~/Documents/autocad-mcp`):
 
 ```bash
 claude mcp add --scope user -e AUTOCAD_MCP_ROOT=~/Drawings autocad -- uv run --directory ~/PycharmProjects/autocad-mcp autocad-mcp
-```
-
-Claude Desktop (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "autocad": {
-      "command": "uv",
-      "args": ["run", "--directory", "/Users/you/PycharmProjects/autocad-mcp", "autocad-mcp"]
-    }
-  }
-}
 ```
 
 ## Development
